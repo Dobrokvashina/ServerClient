@@ -90,6 +90,10 @@ public class Server : MonoBehaviour
                     {
                         RecieveMessage(outHostId, outConnectionId, outChannelId, (Message) message);
                     }
+                    if (message.GetType().Name.Equals("AdminMessage"))
+                    {
+                        RecieveAdminMessage(outHostId, outConnectionId, outChannelId, (AdminMessage) message);
+                    }
                     if (message.GetType().Name.Equals("LoginMessage"))
                     {
                         RecieveLogInMessage(outHostId, outConnectionId, outChannelId, (LoginMessage) message);
@@ -168,6 +172,36 @@ public class Server : MonoBehaviour
         SendMessageToClients(mess);
     }
 
+    private void RecieveAdminMessage(int outHostId, int outConnectionId, int outChannelId, AdminMessage mess)
+    {
+        messageID += 1;
+        Debug.Log(outHostId + " Data from " + outConnectionId + " through the channel " + outChannelId +
+                  " message is " + mess.ToString());
+        uiController.AddLog(outHostId + " Data from " + outConnectionId + " through the channel " + outChannelId +
+                            " message is " + mess.ToString());
+        Message message = FindMessageById(mess.IdMessage);
+        if (message != null)
+        {
+            messages.Remove(message);
+            ChatUser sender = GetUserByLogin(message.Userlogin);
+            SendMessageToClients(mess, sender.Pavilion);
+        }
+        
+    }
+
+    private Message FindMessageById(int id)
+    {
+        foreach (Message message in messages)
+        {
+            if (message.Id == id)
+            {
+                return message;
+            }
+        }
+
+        return null;
+    }
+    
     private void SendMessageToClients(Message message)
     {
         ChatUser sender = GetUserByLogin(message.Userlogin);
@@ -187,8 +221,30 @@ public class Server : MonoBehaviour
             }
         }
     }
+    
+    private void SendMessageToClients(AdminMessage message, string pavilion)
+    {
+        for (int i = 0; i < users[pavilion].Count; i++)
+            {
+                SendMessage(message, users[pavilion][i].HostId, users[pavilion][i].ConnectionId);
+            }
+    }
 
     private void SendMessage(Message message, int hostId, int connectionId)
+    {
+        IFormatter formatter = new BinaryFormatter();
+        byte[] buffer;
+        using (MemoryStream stream = new MemoryStream())
+        {
+            formatter.Serialize(stream, message);
+            buffer = stream.ToArray();
+        }
+
+        NetworkTransport.Send(hostId, connectionId, reliableChannelId, buffer, buffer.Length, out error);
+    }
+    
+    
+    private void SendMessage(AdminMessage message, int hostId, int connectionId)
     {
         IFormatter formatter = new BinaryFormatter();
         byte[] buffer;
