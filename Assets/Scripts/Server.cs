@@ -180,13 +180,26 @@ public class Server : MonoBehaviour
         uiController.AddLog(outHostId + " Data from " + outConnectionId + " through the channel " + outChannelId +
                             " message is " + mess.ToString());
         Message message = FindMessageById(mess.IdMessage);
-        if (message != null)
+        if (message != null && mess.Delete)
         {
             messages.Remove(message);
             ChatUser sender = GetUserByLogin(message.Userlogin);
             SendMessageToClients(mess, sender.Pavilion);
         }
-        
+        if (message != null && mess.Delete)
+        {
+            int ind = messages.IndexOf(message);
+            messages.Remove(message);
+            message.Text = mess.Edit;
+            messages.Insert(ind, message);
+            ChatUser sender = GetUserByLogin(message.Userlogin);
+            SendMessageToClients(mess, sender.Pavilion);
+        }
+
+        if (message != null && message.IsPrivate)
+        {
+            SendMessage(mess, outHostId, outConnectionId);
+        }
     }
 
     private Message FindMessageById(int id)

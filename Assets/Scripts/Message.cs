@@ -33,7 +33,11 @@ public class Message
 
     public int Id => id;
 
-    public string Text => text;
+    public string Text
+    {
+        get => text;
+        set => text = value;
+    }
 
     public string Date => date;
 
