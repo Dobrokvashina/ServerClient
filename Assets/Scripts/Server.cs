@@ -121,6 +121,13 @@ public class Server : MonoBehaviour
     private void RemoveUser(int outHostId, int outConnectionId, int outChannelId)
     {
         ChatUser user = GetUser(outHostId, outConnectionId, outChannelId);
+        if (user == null)
+        {
+            ChatUser unUser = GetUnloggedUser(outHostId, outConnectionId, outChannelId);
+            if (unUser==null)
+                return;
+            unlogedUsers.Remove(unUser);
+        } 
         users[user.Pavilion].Remove(user);
     }
    
