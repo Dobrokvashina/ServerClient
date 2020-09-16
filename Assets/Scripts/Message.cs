@@ -3,14 +3,21 @@ using System;
 [Serializable]
 public class Message
 {
-    private int id;
-    private string text;
-    private string date;
-    private string time;
-    private string userlogin;
-    private bool isPrivate;
-    private string recipient;
+    private int id; // идентефикатор сообщения
+    private string text; // текст сообщения
+    private string date; // дата отправки сообщения
+    private string time; // время отправки сообщения
+    private string userlogin; // логин отправителя
+    private bool isPrivate; // переменная, значение которой описывает, является ли сообщение личным или оно было отправлено в общий чат(комнату)
+    private string recipient; // получатель сообщения(логин получателя или название чата(комнаты))
 
+    /// <summary>
+    /// Контейнер для информации о сообщении для пересылки между сервером и клиентом
+    /// </summary>
+    /// <param name="text"> Текст сообщения</param>
+    /// <param name="userlogin"> Логин отправителя</param>
+    /// <param name="isPrivate"> Является ли сообщение личным или оно было отправлено в общий чат(комнату)</param>
+    /// <param name="recipient"> Логин получателя или название чата (комнаты), куда отправлено сообщение</param>
     public Message(string text, string userlogin, bool isPrivate, string recipient)
     {
         this.text = text;

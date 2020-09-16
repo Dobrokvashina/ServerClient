@@ -31,6 +31,7 @@ public class Server : MonoBehaviour
     private List<Message> messages = new List<Message>();
     private int messageID = 0;
 
+    // Создание сервера и его включение
     private void Start()
     {
         GlobalConfig config = new GlobalConfig();
@@ -46,7 +47,7 @@ public class Server : MonoBehaviour
         isInit = true;
     }
 
-
+    // получение сообщений и их обработка
     private void Update()
     {
         if (!isInit) 
@@ -117,7 +118,12 @@ public class Server : MonoBehaviour
         }
     }
 
-    
+    /// <summary>
+    /// Удаление пользователя из списка подключений при его отключении
+    /// </summary>
+    /// <param name="outHostId"> идентификатор хоста</param>
+    /// <param name="outConnectionId"> идентификатор соединения</param>
+    /// <param name="outChannelId"> идентификатор канала</param>
     private void RemoveUser(int outHostId, int outConnectionId, int outChannelId)
     {
         ChatUser user = GetUser(outHostId, outConnectionId, outChannelId);
@@ -131,7 +137,13 @@ public class Server : MonoBehaviour
         users[user.Pavilion].Remove(user);
     }
    
-
+    /// <summary>
+    ///  Обработка сообщения LoginMessage с данными о входе\выходе пользователя в павильон
+    /// </summary>
+    /// <param name="outHostId"> идентификатор хоста</param>
+    /// <param name="outConnectionId"> идентификатор соединения</param>
+    /// <param name="outChannelId"> идентификатор канала</param>
+    /// <param name="logMess"> сообщение с данными о входе</param>
     private void RecieveLogInMessage(int outHostId, int outConnectionId, int outChannelId, LoginMessage logMess)
     {
         if (GetUnloggedUser(outHostId, outConnectionId, outChannelId) != null ||
@@ -165,6 +177,13 @@ public class Server : MonoBehaviour
         }
     }
     
+    /// <summary>
+    ///  Обработка поступившего текстового сообщения от пользователя
+    /// </summary>
+    /// <param name="outHostId"> идентификатор хоста</param>
+    /// <param name="outConnectionId"> идентификатор соединения</param>
+    /// <param name="outChannelId"> идентификатор канала</param>
+    /// <param name="mess"> сообщение с данными</param>
     private void RecieveMessage(int outHostId, int outConnectionId, int outChannelId, Message mess)
     {
         mess.SetId(messageID);
@@ -179,6 +198,13 @@ public class Server : MonoBehaviour
         SendMessageToClients(mess);
     }
 
+    /// <summary>
+    /// Обработка сообщения с информацией об удалении\редактировании некоторого текстового сообщения
+    /// </summary>
+    /// <param name="outHostId"> идентификатор хоста</param>
+    /// <param name="outConnectionId"> идентификатор соединения</param>
+    /// <param name="outChannelId"> идентификатор канала</param>
+    /// <param name="mess"> сообщение с данными</param>
     private void RecieveAdminMessage(int outHostId, int outConnectionId, int outChannelId, AdminMessage mess)
     {
         messageID += 1;
@@ -209,6 +235,11 @@ public class Server : MonoBehaviour
         }
     }
 
+    /// <summary>
+    /// Поиск сообщения по идентификатору
+    /// </summary>
+    /// <param name="id"> идентификатор необходимого сообщения</param>
+    /// <returns> сообщение с нужным идентификатором</returns>
     private Message FindMessageById(int id)
     {
         foreach (Message message in messages)
@@ -222,6 +253,10 @@ public class Server : MonoBehaviour
         return null;
     }
     
+    /// <summary>
+    ///  Распределение сообщения по клиентам в зависимости от того является оно личным или общим
+    /// </summary>
+    /// <param name="message"> отправляемое сообщение</param>
     private void SendMessageToClients(Message message)
     {
         ChatUser sender = GetUserByLogin(message.Userlogin);
@@ -242,6 +277,11 @@ public class Server : MonoBehaviour
         }
     }
     
+    /// <summary>
+    ///  Отправка сообщения всем пользователям в некотором павильоне
+    /// </summary>
+    /// <param name="message"> сообщение</param>
+    /// <param name="pavilion"> павильон, в котором оно рассылается</param>
     private void SendMessageToClients(AdminMessage message, string pavilion)
     {
         for (int i = 0; i < users[pavilion].Count; i++)
@@ -250,6 +290,12 @@ public class Server : MonoBehaviour
             }
     }
 
+    /// <summary>
+    ///  Непосредственная отправка сообщения некоторому клиенту
+    /// </summary>
+    /// <param name="message"> сообщение</param>
+    /// <param name="hostId"> идентификатор хоста клиента</param>
+    /// <param name="connectionId"> идентификатор соединения клиента</param>
     private void SendMessage(Message message, int hostId, int connectionId)
     {
         IFormatter formatter = new BinaryFormatter();
@@ -263,7 +309,12 @@ public class Server : MonoBehaviour
         NetworkTransport.Send(hostId, connectionId, reliableChannelId, buffer, buffer.Length, out error);
     }
     
-    
+    /// <summary>
+    ///  Непосредственная отправка сообщения некоторому клиенту
+    /// </summary>
+    /// <param name="message"> сообщение</param>
+    /// <param name="hostId"> идентификатор хоста клиента</param>
+    /// <param name="connectionId"> идентификатор соединения клиента</param>
     private void SendMessage(AdminMessage message, int hostId, int connectionId)
     {
         IFormatter formatter = new BinaryFormatter();
@@ -277,6 +328,13 @@ public class Server : MonoBehaviour
         NetworkTransport.Send(hostId, connectionId, reliableChannelId, buffer, buffer.Length, out error);
     }
     
+    /// <summary>
+    /// Проверка на наличие пользователя по данным подключения
+    /// </summary>
+    /// <param name="outHostId"> идентификатор хоста</param>
+    /// <param name="outConnectionId"> идентификатор соединения</param>
+    /// <param name="outChannelId"> идентификатор канала</param>
+    /// <returns> есть ли искомый пользователь среди павильонов</returns>
     private bool IfUserExist(int outHostId, int outConnectionId, int outChannelId)
     {
         foreach (string key in users.Keys)
@@ -293,6 +351,13 @@ public class Server : MonoBehaviour
         return false;
     }
     
+    /// <summary>
+    /// Поиск пользователя по данным подключения в павильонах
+    /// </summary>
+    /// <param name="outHostId"> идентификатор хоста</param>
+    /// <param name="outConnectionId"> идентификатор соединения</param>
+    /// <param name="outChannelId"> идентификатор канала</param>
+    /// <returns> Искомый пользователь или null, при отсутствии такого</returns>
     private ChatUser GetUser(int outHostId, int outConnectionId, int outChannelId)
     {
         foreach (string key in users.Keys)
@@ -308,6 +373,12 @@ public class Server : MonoBehaviour
 
         return null;
     }
+    
+    /// <summary>
+    /// Поиск пользователя по логину в павильонах
+    /// </summary>
+    /// <param name="login"> логин пользователя</param>
+    /// <returns>Искомый пользователь или null, при отсутствии такого</returns>
     private ChatUser GetUserByLogin(string login)
     {
         foreach (string key in users.Keys)
@@ -324,6 +395,13 @@ public class Server : MonoBehaviour
         return null;
     }
 
+    /// <summary>
+    /// Поиск пользователя среди незалогиненых по данным подключения
+    /// </summary>
+    /// <param name="outHostId"> идентификатор хоста</param>
+    /// <param name="outConnectionId"> идентификатор соединения</param>
+    /// <param name="outChannelId"> идентификатор канала</param>
+    /// <returns> Искомый пользователь или null, при отсутствии такого</returns>
     private ChatUser GetUnloggedUser(int outHostId, int outConnectionId, int outChannelId)
     {
         for (int i = 0; i < unlogedUsers.Count; i++)
