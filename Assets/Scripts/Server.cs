@@ -219,7 +219,7 @@ public class Server : MonoBehaviour
             ChatUser sender = GetUserByLogin(message.Userlogin);
             SendMessageToClients(mess, sender.Pavilion);
         }
-        if (message != null && mess.Delete)
+        if (message != null && !mess.Delete)
         {
             int ind = messages.IndexOf(message);
             messages.Remove(message);

@@ -553,7 +553,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   log: {fileID: 1182646666}
-  MAX_ROW_LOG: 30
+  MAX_ROW_LOG: 10
 --- !u!1 &1627077544
 GameObject:
   m_ObjectHideFlags: 0
