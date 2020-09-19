@@ -133,8 +133,8 @@ public class Server : MonoBehaviour
             if (unUser==null)
                 return;
             unlogedUsers.Remove(unUser);
-        } 
-        users[user.Pavilion].Remove(user);
+        } else
+            users[user.Pavilion].Remove(user);
     }
    
     /// <summary>
@@ -159,6 +159,11 @@ public class Server : MonoBehaviour
                 users.Add(logMess.Pavilion, new List<ChatUser>());
             }
             users[logMess.Pavilion].Add(user);
+            foreach (Message message in messages)
+            {
+                if (message.Recipient.Equals(logMess.Userlogin) || message.Userlogin.Equals(logMess.Userlogin) || message.Recipient.StartsWith(logMess.Pavilion + ":"))
+                    SendMessage(message,outHostId, outConnectionId);
+            }
         }
         else
         {
@@ -216,8 +221,21 @@ public class Server : MonoBehaviour
         if (message != null && mess.Delete)
         {
             messages.Remove(message);
-            ChatUser sender = GetUserByLogin(message.Userlogin);
-            SendMessageToClients(mess, sender.Pavilion);
+            if (message.IsPrivate)
+            {
+                ChatUser sender = GetUserByLogin(message.Userlogin);
+                ChatUser recepient = GetUserByLogin(message.Recipient);
+                if (sender != null)
+                    SendMessage(message, sender.HostId, sender.ConnectionId);
+                if (recepient !=null)
+                    SendMessage(message, recepient.HostId, recepient.ConnectionId);
+                
+            }
+            else
+            {
+                ChatUser sender = GetUserByLogin(message.Userlogin);
+                SendMessageToClients(mess, sender.Pavilion);
+            }
         }
         if (message != null && !mess.Delete)
         {
@@ -225,8 +243,21 @@ public class Server : MonoBehaviour
             messages.Remove(message);
             message.Text = mess.Edit;
             messages.Insert(ind, message);
-            ChatUser sender = GetUserByLogin(message.Userlogin);
-            SendMessageToClients(mess, sender.Pavilion);
+            if (message.IsPrivate)
+            {
+                ChatUser sender = GetUserByLogin(message.Userlogin);
+                ChatUser recepient = GetUserByLogin(message.Recipient);
+                if (sender != null)
+                    SendMessage(message, sender.HostId, sender.ConnectionId);
+                if (recepient !=null)
+                    SendMessage(message, recepient.HostId, recepient.ConnectionId);
+                
+            }
+            else
+            {
+                ChatUser sender = GetUserByLogin(message.Userlogin);
+                SendMessageToClients(mess, sender.Pavilion);
+            }
         }
 
         if (message != null && message.IsPrivate)
