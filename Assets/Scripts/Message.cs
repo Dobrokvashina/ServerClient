@@ -1,4 +1,5 @@
 using System;
+using System.Collections.Generic;
 
 [Serializable]
 public class Message
@@ -10,6 +11,7 @@ public class Message
     private string userlogin; // логин отправителя
     private bool isPrivate; // переменная, значение которой описывает, является ли сообщение личным или оно было отправлено в общий чат(комнату)
     private string recipient; // получатель сообщения(логин получателя или название чата(комнаты))
+    private List<string> readen; // прочитано ли сообщение
 
     /// <summary>
     /// Контейнер для информации о сообщении для пересылки между сервером и клиентом
@@ -26,6 +28,7 @@ public class Message
         this.userlogin = userlogin;
         this.isPrivate = isPrivate;
         this.recipient = recipient;
+        readen = new List<string>() {userlogin};
     }
 
     public string ToString()
@@ -44,6 +47,12 @@ public class Message
     {
         get => text;
         set => text = value;
+    }
+
+    public List<string> Readen
+    {
+        get => readen;
+        set => readen = value;
     }
 
     public string Date => date;

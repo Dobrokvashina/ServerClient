@@ -99,6 +99,11 @@ public class Server : MonoBehaviour
                     {
                         RecieveLogInMessage(outHostId, outConnectionId, outChannelId, (LoginMessage) message);
                     }
+
+                    if (message.GetType().Name.Equals("ReadMessage"))
+                    {
+                        RecieveReadMessage((ReadMessage)message);
+                    }
                     
                 }
                 
@@ -161,7 +166,7 @@ public class Server : MonoBehaviour
             users[logMess.Pavilion].Add(user);
             foreach (Message message in messages)
             {
-                if (message.Recipient.Equals(logMess.Userlogin) || message.Userlogin.Equals(logMess.Userlogin) || message.Recipient.StartsWith(logMess.Pavilion + ":"))
+                if (message.Recipient.Equals(logMess.Userlogin) || message.Userlogin.Equals(logMess.Userlogin) || message.Recipient.StartsWith(logMess.Pavilion))
                     SendMessage(message,outHostId, outConnectionId);
             }
         }
@@ -201,6 +206,17 @@ public class Server : MonoBehaviour
         if (mess.IsPrivate)
             SendMessage(mess, outHostId, outConnectionId);
         SendMessageToClients(mess);
+    }
+    
+    
+    private void RecieveReadMessage(ReadMessage message)
+    {
+        List<int> messages = new List<int>(message.MessagesId);
+        foreach (Message mess in this.messages)
+        {
+            if (messages.Contains(mess.Id))
+                mess.Readen.Add(message.Login);
+        }
     }
 
     /// <summary>
